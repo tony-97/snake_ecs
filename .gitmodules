@@ -1,0 +1,3 @@
+[submodule "external/oop-ecs"]
+	path = external/oop-ecs
+	url = ../oop-ecs
