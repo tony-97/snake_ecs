@@ -1,3 +1,6 @@
 [submodule "external/oop-ecs"]
 	path = external/oop-ecs
 	url = ../oop-ecs
+[submodule "external/makefile"]
+	path = external/makefile
+	url = ../makefilegen
