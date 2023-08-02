@@ -1,0 +1,33 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-I./external/oop-ecs/src",
+      "-I./external/oop-ecs/external",
+      "-I./src",
+      "-DPARALLEL",
+      "-std=c++20",
+      "-fno-rtti",
+      "-fno-exceptions",
+      "-g3",
+      "-ggdb",
+      "-O0",
+      "-W",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-pedantic",
+      "-Wno-missing-braces",
+      "-Wno-missing-field-initializers",
+      "-Wno-unused-parameter",
+      "-Wno-unused-local-typedefs",
+      "-o",
+      "build/debug/obj/main.cc.o",
+      "src/main.cpp"
+    ],
+    "directory": "/home/tony/Programacion/C++/snake",
+    "file": "/home/tony/Programacion/C++/snake/src/main.cpp",
+    "output": "/home/tony/Programacion/C++/snake/build/debug/obj/main.cc.o"
+  }
+]
