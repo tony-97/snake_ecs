@@ -1,20 +1,28 @@
 {
     "config": {
-        "screen_width": 1366,
-        "screen_height": 766,
+        "screen_width": 640,
+        "screen_height": 480,
         "segment_size": 32,
         "speed": 150
     },
-    "11": {
-        "size": 32,
-        "sprite_name": "head"
-    },
-    "10": {
-        "size": 32,
-        "sprite_name": "tail"
-    },
     "9": {
-        "size": 32,
-        "sprite_name": "body"
+        "size": 22,
+        "sprite_name": "head",
+        "id": 1
+    },
+    "8": {
+        "size": 21,
+        "sprite_name": "tail",
+        "id": 1
+    },
+    "7": {
+        "size": 12,
+        "sprite_name": "body",
+        "id": 1
+    },
+    "6": {
+        "size": 4,
+        "sprite_name": "body",
+        "id": 2
     }
 }
