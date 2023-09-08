@@ -8,5 +8,5 @@ struct ResourceManager_t
 
   ~ResourceManager_t() { UnloadTexture(mAtlas); }
 
-  const Texture2D mAtlas{ LoadTexture("./texture_atlas.png") };
+  const Texture2D mAtlas{ LoadTexture("./assets/texture_atlas.png") };
 };

@@ -14,7 +14,7 @@ struct GameFactory_t
     : mECSMan{ ecs_man }
     , mGData{ g_data }
     , mConfig(json::parse(std::ifstream("./game_config.json")))
-    , mSpriteLayout(json::parse(std::ifstream("./atlas_layout.json")))
+    , mSpriteLayout(json::parse(std::ifstream("./texture_atlas.json")))
   {
     mGData               = mConfig["config"].get<GameData_t>();
     mGData.camera.offset = { .x = mGData.screen_width * 0.5f, .y = mGData.screen_height * 0.5f };
