@@ -1,7 +1,7 @@
 {
     "config": {
-        "screen_width": 640,
-        "screen_height": 480,
+        "screen_width": 1366,
+        "screen_height": 768,
         "segment_size": 32,
         "speed": 150
     },
@@ -16,7 +16,7 @@
         "id": 1
     },
     "7": {
-        "size": 12,
+        "size": 10,
         "sprite_name": "body",
         "id": 1
     },

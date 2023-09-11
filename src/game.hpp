@@ -23,16 +23,17 @@ struct Game_t : ECS::Uncopyable_t
   {
     ++g_data.score;
     auto [tpos, tcol, tren]{ ecs_man.GetComponents<c::Physics_t, c::Collider_t, c::Render_t>(g_data.tail) };
-    auto ss     = ecs_man.TransformTo<e::SnakeSegment_t>(g_data.tail);
-    g_data.tail = ecs_man.CreateEntity<e::SnakeTail_t>(
-      c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) }, c::Physics_t{ tpos.position }, tcol, tren);
+    auto ss  = ecs_man.TransformTo<e::SnakeSegment_t>(g_data.tail);
+    auto ren = tren;
+    --ren.index;
+    g_data.tail = g_fact.EntityFromConfig<e::SnakeTail_t>(
+      c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) }, c::Physics_t{ tpos.position }, tcol, ren);
     ecs_man.Match<e::Collidable_t>(g_data.tail, [&](auto& phy, auto& col, auto e) {
       auto      pos{ phy.position };
       Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
       col.key = g_data.qd_tree.insert(e, r);
     });
     g_fact.ConfigureEntityFromConfig(ss);
-    g_fact.ConfigureEntityFromConfig(g_data.tail);
     if (g_data.score % 10 == 0) {
       g_fact.grow(g_data.head, 1);
       ecs_man.ParallelForEach<e::SnakeSegment_t>([&](auto e) { g_fact.grow(e, 1); });

@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <vector>
 
+template<class T> struct Circle_t;
+
 template<class T>
 concept RectangleV1 = requires(T t) {
   {
@@ -73,11 +75,15 @@ template<class T> struct Rectangle_t
            r1.y <= r2.y + r2.height;
   }
 
+  constexpr auto overlaps(Circle_t<T> c1) const -> bool;
+
   constexpr auto contains(Rectangle_t r2) const -> bool
   {
     auto& r1{ *this };
     return r1.x <= r2.x && r2.x + r2.width <= r1.x + r1.width && r1.y <= r2.y && r2.y + r2.height <= r1.y + r1.height;
   }
+
+  constexpr auto contains(Circle_t<T> c1) const -> bool;
 
   constexpr friend auto operator==(Rectangle_t r1, Rectangle_t r2) -> bool
   {
@@ -100,6 +106,32 @@ template<class T> struct Rectangle_t
              static_cast<decltype(std::declval<R>().h)>(height));
   }
 };
+
+template<class T> struct Circle_t
+{
+  T x{};
+  T y{};
+  T radius{};
+
+  constexpr auto contains(Rectangle_t<T> r2) -> bool;
+  constexpr auto contains(Circle_t c2) -> bool;
+  constexpr auto overlaps(Rectangle_t<T> r2) -> bool;
+  constexpr auto overlaps(Circle_t c2) -> bool;
+};
+
+template<class T>
+constexpr auto
+Circle_t<T>::contains(Rectangle_t<T> r2) -> bool
+{
+  return true;
+}
+
+template<class T>
+constexpr auto
+Circle_t<T>::contains(Circle_t<T> c2) -> bool
+{
+  return true;
+}
 
 template<class T, unsigned MAX_DEPTH = 8, unsigned COLUMNS = 2, unsigned ROWS = 2> struct QuadTree_t
 {
@@ -269,14 +301,14 @@ template<class T, unsigned MAX_DEPTH = 8, unsigned COLUMNS = 2, unsigned ROWS = 
 
   constexpr auto erase(KeyItem_t key) -> void
   {
-    auto& item{ mItems[key] };
+    auto& item{ mItems[{ key }] };
     item.keys->erase({ item.key });
     mItems.erase({ key });
   }
 
   constexpr auto update(Recf_t area, KeyItem_t key) -> void
   {
-    auto& item{ mItems[key] };
+    auto& item{ mItems[{ key }] };
     item.keys->erase({ item.key });
     auto [keys, keykey]{ mRoot.insert({ key }, area) };
     item.keys = &keys;
@@ -287,9 +319,9 @@ template<class T, unsigned MAX_DEPTH = 8, unsigned COLUMNS = 2, unsigned ROWS = 
 
   constexpr auto search(Recf_t area) const -> std::vector<KeyItem_t> { return mRoot.search(area); }
 
-  constexpr auto operator[](KeyItem_t key) -> T& { return mItems[key].value; }
+  constexpr auto operator[](KeyItem_t key) -> T& { return mItems[{ key }].value; }
 
-  constexpr auto operator[](KeyItem_t key) const -> const T& { return mItems[key].value; }
+  constexpr auto operator[](KeyItem_t key) const -> const T& { return mItems[{ key }].value; }
 
   QuadNode_t                mRoot{};
   ECS::ECSMap_t<QuadItem_t> mItems{};

@@ -35,18 +35,18 @@ struct GameFactory_t
       e,
       [&](ECS::Handle_t<e::Renderable_t> eid) {
         auto& ren{ mECSMan.template GetComponent<c::Render_t>(eid) };
-        auto  sprite_name{ j["sprite_name"].get<std::string>() };
-        auto  r{ mSpriteLayout["frames"][sprite_name]["frame"] };
+        auto sprite_name{ j["sprite_name"].get<std::string>() };
+        auto& r{ mSpriteLayout["frames"][sprite_name]["frame"] };
         ren.crop = Rectangle{
-          .x      = static_cast<float>(r[0]["x"].get<int>()),
-          .y      = static_cast<float>(r[0]["y"].get<int>()),
-          .width  = static_cast<float>(r[0]["w"].get<int>()),
-          .height = static_cast<float>(r[0]["h"].get<int>()),
+          .x      = static_cast<float>(r["x"].get<int>()),
+          .y      = static_cast<float>(r["y"].get<int>()),
+          .width  = static_cast<float>(r["w"].get<int>()),
+          .height = static_cast<float>(r["h"].get<int>()),
         };
       },
       [&](ECS::Handle_t<e::Collidable_t> eid) {
         auto& col{ mECSMan.template GetComponent<c::Collider_t>(eid) };
-        col = j.get<c::Collider_t>();
+        col.size = j.get<c::Collider_t>().size;
       });
   }
 
@@ -112,6 +112,8 @@ struct GameFactory_t
     auto                                    head         = EntityFromConfig<e::SnakeHead_t>();
     auto                                    tail         = EntityFromConfig<e::SnakeTail_t>();
     mECSMan.GetComponent<c::SnakeSegment_t>(tail).target = mECSMan.GetBaseID<e::Collidable_t>(head);
+    mECSMan.GetComponent<c::Render_t>(head).index = std::numeric_limits<unsigned int>::max();
+    mECSMan.GetComponent<c::Render_t>(tail).index = std::numeric_limits<unsigned int>::max() - 1;
     grow(head, 2);
 
     for (unsigned i{}; i < 100000; ++i) {
@@ -126,7 +128,8 @@ struct GameFactory_t
                                 .g = static_cast<unsigned char>(GetRandomValue(0, 255)),
                                 .b = static_cast<unsigned char>(GetRandomValue(0, 255)),
                                 .a = 255 },
-                     .scale = 0.125f });
+                     .scale = 0.625f,
+                     .index = i });
     }
   }
 

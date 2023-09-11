@@ -2,7 +2,9 @@
 
 #include <raylib.h>
 
-struct ResourceManager_t
+#include <helpers.hpp>
+
+struct ResourceManager_t : ECS::Uncopyable_t
 {
   explicit ResourceManager_t() = default;
 

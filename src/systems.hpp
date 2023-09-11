@@ -16,7 +16,7 @@ struct Render_t
     : mResMan{ res_man }
   {
     InitWindow(width, height, title);
-    // SetWindowState(FLAG_FULLSCREEN_MODE);
+    SetWindowState(FLAG_FULLSCREEN_MODE);
   }
 
   auto update(const ECSMan_t& ecs_man, const GameData_t& g_data) const -> void
@@ -130,9 +130,8 @@ struct Input_t
     if (IsKeyDown(KEY_SPACE)) {
       acceleration *= 2.0f;
     }
-    // phy.position = Vector2Add(phy.position, Vector2Scale(phy.velocity, g_data.speed * acceleration *
-    // GetFrameTime()));
-    phy.position         = Vector2Add(phy.position, Vector2Scale(phy.velocity, g_data.speed * acceleration));
+    phy.position = Vector2Add(phy.position, Vector2Scale(phy.velocity, g_data.speed * acceleration *
+    GetFrameTime()));
     g_data.camera.target = phy.position;
   }
 };
@@ -144,20 +143,19 @@ struct Collider_t
   constexpr auto update(const EVMan_t& ev_man, ECSMan_t& ecs_man, const GameData_t& g_data) const -> void
   {
     ecs_man.ForEach<e::move_tag_t>([&](auto e) {
-      ecs_man.Match<e::Collidable_t>(e, [&](auto& phy, auto& col, auto ee) {
+      ecs_man.Match<e::Collidable_t>(e, [&](auto& phy, auto& col) {
         auto      pos{ phy.position };
         Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
-        g_data.qd_tree.erase(col.key);
-        col.key = g_data.qd_tree.insert(ee, r);
-        // g_data.qd_tree.update(r, col.key);
+        g_data.qd_tree.update(r, col.key);
       });
     });
     ecs_man.Match<e::Collidable_t>(g_data.head, [&](auto& phy, auto& col, auto e) {
       auto      pos{ phy.position };
       Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
       auto&     qd_tree{ g_data.qd_tree };
-      for (auto&& h : qd_tree.search(r)) {
-        if (e.GetIndex() != qd_tree[h].GetIndex() && col.id != ecs_man.GetComponent<c::Collider_t>(qd_tree[h]).id) {
+      auto vh { qd_tree.search(r) };
+      for (auto&& h : vh) {
+        if (col.id != ecs_man.GetComponent<c::Collider_t>(qd_tree[h]).id) {
           ev_man.publish(ev::Collision_t{ e, qd_tree[h] });
         }
       }
