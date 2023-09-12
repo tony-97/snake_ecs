@@ -4,8 +4,6 @@
 #include "systems.hpp"
 #include "types.hpp"
 
-#include <mutex>
-
 struct Game_t : ECS::Uncopyable_t
 {
   explicit Game_t()

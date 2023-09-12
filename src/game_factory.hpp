@@ -35,7 +35,7 @@ struct GameFactory_t
       e,
       [&](ECS::Handle_t<e::Renderable_t> eid) {
         auto& ren{ mECSMan.template GetComponent<c::Render_t>(eid) };
-        auto sprite_name{ j["sprite_name"].get<std::string>() };
+        auto  sprite_name{ j["sprite_name"].get<std::string>() };
         auto& r{ mSpriteLayout["frames"][sprite_name]["frame"] };
         ren.crop = Rectangle{
           .x      = static_cast<float>(r["x"].get<int>()),
@@ -112,8 +112,8 @@ struct GameFactory_t
     auto                                    head         = EntityFromConfig<e::SnakeHead_t>();
     auto                                    tail         = EntityFromConfig<e::SnakeTail_t>();
     mECSMan.GetComponent<c::SnakeSegment_t>(tail).target = mECSMan.GetBaseID<e::Collidable_t>(head);
-    mECSMan.GetComponent<c::Render_t>(head).index = std::numeric_limits<unsigned int>::max();
-    mECSMan.GetComponent<c::Render_t>(tail).index = std::numeric_limits<unsigned int>::max() - 1;
+    mECSMan.GetComponent<c::Render_t>(head).index        = std::numeric_limits<unsigned int>::max();
+    mECSMan.GetComponent<c::Render_t>(tail).index        = std::numeric_limits<unsigned int>::max() - 1;
     grow(head, 2);
 
     for (unsigned i{}; i < 100000; ++i) {
