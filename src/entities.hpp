@@ -27,6 +27,9 @@ struct BasicCharacter_t : ECS::Class_t<Renderable_t, Collidable_t>
 struct LivingCharacter_t : ECS::Class_t<BasicCharacter_t, Alive_t>
 {};
 
+struct Barrier_t : ECS::Class_t<BasicCharacter_t>
+{};
+
 struct Food_t : ECS::Class_t<LivingCharacter_t>
 {};
 
