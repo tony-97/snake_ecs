@@ -1,8 +1,7 @@
 #pragma once
 
-#include <raylib.h>
-
 #include <quad_tree.hpp>
+#include <raylib.h>
 #include <type_aliases.hpp>
 
 namespace e {
@@ -28,7 +27,7 @@ struct Physics_t
 {
   Vector2 position{};
   Vector2 velocity{};
-  Vector2 direction{};
+  Vector2 direction{ 1, 0 };
 };
 
 struct Render_t
