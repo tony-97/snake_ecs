@@ -1,12 +1,13 @@
 #pragma once
 
-#include <algorithm>
-#include <raylib.h>
-#include <raymath.h>
-
 #include "entities.hpp"
 #include "type_aliases.hpp"
 #include "types.hpp"
+
+#include <algorithm>
+#include <format>
+#include <raylib.h>
+#include <raymath.h>
 
 namespace sys {
 
@@ -43,8 +44,12 @@ struct Render_t
         dest_rec.x = pos.position.x;
         dest_rec.y = pos.position.y;
         auto rot{ Vector2Angle(Vector2{}, pos.direction) * RAD2DEG + 90 };
-        DrawTexturePro(
-          mResMan.mAtlas, ren.crop, dest_rec, { dest_rec.width * 0.5f, dest_rec.height * 0.5f }, rot, ren.color);
+        DrawTexturePro(mResMan.mAtlas,
+                       ren.crop,
+                       dest_rec,
+                       { dest_rec.width * 0.5f, dest_rec.height * 0.5f },
+                       rot,
+                       ren.color);
       });
     }
     EndMode2D();
@@ -130,8 +135,9 @@ struct Input_t
     if (IsKeyDown(KEY_SPACE)) {
       acceleration *= 2.0f;
     }
-    phy.position = Vector2Add(phy.position, Vector2Scale(phy.velocity, g_data.speed * acceleration *
-    GetFrameTime()));
+    phy.position =
+      Vector2Add(phy.position,
+                 Vector2Scale(phy.velocity, g_data.speed * acceleration * (GetFrameTime() > 1 ? 1 : GetFrameTime())));
     g_data.camera.target = phy.position;
   }
 };
@@ -153,7 +159,7 @@ struct Collider_t
       auto      pos{ phy.position };
       Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
       auto&     qd_tree{ g_data.qd_tree };
-      auto vh { qd_tree.search(r) };
+      auto      vh{ qd_tree.search(r) };
       for (auto&& h : vh) {
         if (col.id != ecs_man.GetComponent<c::Collider_t>(qd_tree[h]).id) {
           ev_man.publish(ev::Collision_t{ e, qd_tree[h] });

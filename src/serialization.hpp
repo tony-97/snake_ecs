@@ -1,8 +1,8 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include "types.hpp"
+
+#include <nlohmann/json.hpp>
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Color, r, g, b, a);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Rectangle, x, y, width, height);

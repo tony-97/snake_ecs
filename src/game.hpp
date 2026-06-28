@@ -24,18 +24,21 @@ struct Game_t : ECS::Uncopyable_t
     auto ss  = ecs_man.TransformTo<e::SnakeSegment_t>(g_data.tail);
     auto ren = tren;
     --ren.index;
-    g_data.tail = g_fact.EntityFromConfig<e::SnakeTail_t>(
-      c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) }, c::Physics_t{ tpos.position }, tcol, ren);
+    g_data.tail = g_fact.EntityFromConfig<e::SnakeTail_t>(c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) },
+                                                          c::Physics_t{ tpos.position },
+                                                          tcol,
+                                                          ren);
     ecs_man.Match<e::Collidable_t>(g_data.tail, [&](auto& phy, auto& col, auto e) {
+      col.size = tcol.size;
       auto      pos{ phy.position };
       Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
       col.key = g_data.qd_tree.insert(e, r);
     });
-    g_fact.ConfigureEntityFromConfig(ss);
-    if (g_data.score % 10 == 0) {
-      g_fact.grow(g_data.head, 1);
-      ecs_man.ParallelForEach<e::SnakeSegment_t>([&](auto e) { g_fact.grow(e, 1); });
-    }
+    // g_fact.ConfigureEntityFromConfig(ss);
+    // if (g_data.score % 10 == 0) {
+    g_fact.grow(g_data.head, 1);
+    ecs_man.ParallelForEach<e::SnakeSegment_t>([&](auto e) { g_fact.grow(e, 1); });
+    //}
   }
 
   void operator()(ev::Collision_t ev)
@@ -50,7 +53,7 @@ struct Game_t : ECS::Uncopyable_t
     while (!WindowShouldClose()) {
       DrawingRoutine([&]() {
         ren_sys.update(ecs_man, g_data);
-        // dbg_ren_sys.update(ecs_man, g_data);
+        dbg_ren_sys.update(ecs_man, g_data);
       });
       inp_sys.update(ecs_man, g_data);
       snake_sys.update(ecs_man);
