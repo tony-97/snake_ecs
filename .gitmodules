@@ -1,6 +1,9 @@
-[submodule "external/oop-ecs"]
-	path = external/oop-ecs
-	url = ../oop-ecs
 [submodule "external/makefile"]
 	path = external/makefile
 	url = ../makefilegen
+[submodule "external/raylib"]
+	path = external/raylib
+	url = https://github.com/raysan5/raylib
+[submodule "external/oop-ecs"]
+	path = external/oop-ecs
+	url = ../oop-ecs
