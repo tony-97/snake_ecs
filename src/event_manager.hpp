@@ -1,6 +1,5 @@
 #pragma once
 
-#include "traits.hpp"
 #include <array>
 #include <functional>
 #include <mutex>
@@ -52,7 +51,7 @@ public:
     mEvents.template ForEach<EventHandler_t<Event_t>>([ev = event](const auto& signal, auto) { signal(ev); });
   }
 
-public:
+private:
   ECS::ECSManager_t<ECSManConfig_t> mEvents{};
   mutable Mutexes                   mMutexes{};
 };

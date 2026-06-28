@@ -3,8 +3,11 @@
 #include "serialization.hpp"
 
 #include <cmath>
+#include <format>
 #include <fstream>
+#include <numbers>
 #include <random>
+#include <raymath.h>
 
 struct GameFactory_t
 {
@@ -58,11 +61,15 @@ struct GameFactory_t
     }
   }
 
+  int func(auto&&... typ) const { return 1; }
+
   template<class EntSig_t, class... Args_t> constexpr auto EntityFromJSON(const json& j, Args_t&&... args) const -> auto
   {
-    using Components_t = TMPL::Sequence::Difference_t<ECS::Traits::Components_t<EntSig_t>,
-                                                      TMPL::TypeList_t<std::remove_cvref_t<Args_t>...>>;
-    auto e             = TMPL::Sequence::Unpacker_t<Components_t>::Call(
+    using a            = ECS::Traits::Components_t<EntSig_t>;
+    using b            = ECS::Traits::Components_t<TMPL::TypeList_t<std::remove_cvref_t<Args_t>...>>;
+    using Components_t = TMPL::Sequence::Difference_t<a, b>;
+    func(a{}, b{}, Components_t{});
+    auto e = TMPL::Sequence::Unpacker_t<Components_t>::Call(
       [&]<class... Ts, class... Cmps_t>(Cmps_t&&... cmps) {
         return mECSMan.template CreateEntity<EntSig_t>(j.get<Ts>()..., std::forward<Cmps_t>(cmps)...);
       },
@@ -107,18 +114,21 @@ struct GameFactory_t
 
   auto LoadMainScene() const -> void
   {
-    static std::mt19937                     gen(std::random_device{}());
-    static std::uniform_real_distribution<> dis(0.0f, 1.0f);
-    auto                                    head         = EntityFromConfig<e::SnakeHead_t>();
-    auto                                    tail         = EntityFromConfig<e::SnakeTail_t>();
+    static std::mt19937                          gen(std::random_device{}());
+    static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    auto                                         head    = EntityFromConfig<e::SnakeHead_t>();
+    auto                                         tail    = EntityFromConfig<e::SnakeTail_t>();
     mECSMan.GetComponent<c::SnakeSegment_t>(tail).target = mECSMan.GetBaseID<e::Collidable_t>(head);
     mECSMan.GetComponent<c::Render_t>(head).index        = std::numeric_limits<unsigned int>::max();
     mECSMan.GetComponent<c::Render_t>(tail).index        = std::numeric_limits<unsigned int>::max() - 1;
-    grow(head, 2);
+    // grow(head, 2);
 
-    for (unsigned i{}; i < 100000; ++i) {
+    unsigned j{};
+    unsigned steps{ 5000 };
+
+    for (unsigned i{}; i < 1000; ++i) {
       float r = 5000 * std::sqrt(dis(gen));
-      float a = dis(gen) * 2 * M_PI;
+      float a = dis(gen) * 2 * std::numbers::pi_v<float>;
       EntityFromConfig<e::Food_t>(
         c::Physics_t{
           r * std::sin(a),
@@ -129,7 +139,16 @@ struct GameFactory_t
                                 .b = static_cast<unsigned char>(GetRandomValue(0, 255)),
                                 .a = 255 },
                      .scale = 0.625f,
-                     .index = i });
+                     .index = ++j });
+    }
+    for (unsigned i{}; i < steps; ++i) {
+      float   r = 5000;
+      Vector2 position{ r * std::sin((static_cast<float>(i) / steps) * 2 * std::numbers::pi_v<float>),
+                        r * std::cos((static_cast<float>(i) / steps) * 2 * std::numbers::pi_v<float>) };
+      auto    dir = Vector2Normalize(Vector2Subtract(position, Vector2{}));
+      EntityFromConfig<e::Food_t>(c::Physics_t{ .position = position, .direction = dir },
+                                  c::Render_t{ .color = BLUE, .scale = 1.0f, .index = ++j },
+                                  c::Collider_t{ .size = 12 });
     }
   }
 
