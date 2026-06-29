@@ -143,7 +143,7 @@ struct Collider_t
 {
   constexpr explicit Collider_t() = default;
 
-  constexpr auto update(const EVMan_t& ev_man, ECSMan_t& ecs_man, const GameData_t& g_data) const -> void
+  constexpr auto update(EVMan_t& ev_man, ECSMan_t& ecs_man, const GameData_t& g_data) const -> void
   {
     ecs_man.ForEach<e::move_tag_t>([&](auto e) {
       ecs_man.Match<e::Collidable_t>(e, [&](auto& phy, auto& col) {

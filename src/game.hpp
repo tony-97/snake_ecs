@@ -9,7 +9,6 @@ struct Game_t : ECS::Uncopyable_t
   explicit Game_t()
   {
     g_fact.LoadMainScene();
-    ev_man.suscribe<ev::Collision_t>(*this);
     ecs_man.ForEach<e::Collidable_t>([&](auto& phy, auto& col, auto e) {
       auto      pos{ phy.position };
       Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
@@ -24,10 +23,8 @@ struct Game_t : ECS::Uncopyable_t
     auto ss  = ecs_man.TransformTo<e::SnakeSegment_t>(g_data.tail);
     auto ren = tren;
     --ren.index;
-    g_data.tail = g_fact.EntityFromConfig<e::SnakeTail_t>(c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) },
-                                                          c::Physics_t{ tpos.position },
-                                                          tcol,
-                                                          ren);
+    g_data.tail = g_fact.EntityFromConfig<e::SnakeTail_t>(
+      c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) }, c::Physics_t{ tpos.position }, tcol, ren);
     ecs_man.Match<e::Collidable_t>(g_data.tail, [&](auto& phy, auto& col, auto e) {
       col.size = tcol.size;
       auto      pos{ phy.position };
@@ -58,6 +55,10 @@ struct Game_t : ECS::Uncopyable_t
       inp_sys.update(ecs_man, g_data);
       snake_sys.update(ecs_man);
       col_sys.update(ev_man, ecs_man, g_data);
+      for (const auto& ev : ev_man.get_events<ev::Collision_t>()) {
+        (*this)(ev);
+      }
+      ev_man.clear();
       process_queue(queue_destruction);
       process_queue(queue_creation);
     }

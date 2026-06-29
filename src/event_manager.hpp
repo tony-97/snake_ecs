@@ -1,57 +1,37 @@
 #pragma once
 
-#include <array>
-#include <functional>
-#include <mutex>
-
-#include <class.hpp>
-#include <ecs_manager.hpp>
+#include "struct_of_arrays.hpp"
+#include "tmpl/sequence.hpp"
+#include <tuple>
+#include <utility>
+#include <vector>
 
 template<class Config_t> struct EventManager_t
 {
 private:
-  template<class T> using Signal_t = std::function<void(T)>;
+  template<class... Evs_t> using EventBus = ECS::SoA_t<std::vector, Evs_t...>;
 
-  template<class T> struct EventHandler_t : ECS::Class_t<Signal_t<T>>
-  {};
-
-  using Mutexes = std::array<std::mutex, TMPL::Sequence::Size_v<typename Config_t::events>>;
-
-  template<class T> using ToEventHandler_t = std::type_identity<EventHandler_t<T>>;
-
-  struct ECSManConfig_t
-  {
-    using Signatures_t = TMPL::Sequence::Map_t<typename Config_t::events, ToEventHandler_t>;
-  };
+  using EventBus_t = TMPL::Sequence::As_t<EventBus, typename Config_t::events>;
 
 public:
   constexpr explicit EventManager_t() = default;
 
-  template<class Event_t, class Handler_t>
-  constexpr auto suscribe(Handler_t& handler) -> ECS::Handle_t<EventHandler_t<Event_t>>
+  template<class Event_t> constexpr auto publish(Event_t&& event) -> void
   {
-    return mEvents.template CreateEntity<EventHandler_t<Event_t>>(std::function<void(Event_t)>{ std::ref(handler) });
+    mEvents.template emplace_back<Event_t>(std::forward<Event_t>(event));
   }
 
-  template<class Event_t, class Handler_t> void unsuscribe(Handler_t& handler)
+  template<class Event_t> constexpr auto get_events() const
   {
-    mEvents.template ForEachEntity<EventHandler_t<Event_t>>([&](auto ent) {
-      auto& signal = mEvents.template GetComponent<Signal_t<Event_t>>(ent);
-      if (std::addressof(handler) == signal.template target<void(Event_t)>()) {
-        mEvents.Destroy(ent);
-      }
-    });
+    return static_cast<const std::vector<Event_t>&>(mEvents);
   }
 
-  void unsuscribe(auto handler) { mEvents.Destroy(handler); }
-
-  template<class Event_t> void publish(Event_t event) const
+  constexpr auto clear() -> void
   {
-    std::lock_guard lock{ mMutexes[TMPL::Sequence::IndexOf_v<Event_t, typename Config_t::events>] };
-    mEvents.template ForEach<EventHandler_t<Event_t>>([ev = event](const auto& signal, auto) { signal(ev); });
+    TMPL::Sequence::ForEach_t<typename Config_t::events>::Do(
+      [&]<class Event_t>() { mEvents.template clear<Event_t>(); });
   }
 
 private:
-  ECS::ECSManager_t<ECSManConfig_t> mEvents{};
-  mutable Mutexes                   mMutexes{};
+  EventBus_t mEvents{};
 };
