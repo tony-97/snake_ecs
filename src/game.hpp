@@ -101,8 +101,8 @@ private:
   std::vector<std::function<void()>> queue_creation{};
 
   const sys::Render_t      ren_sys{ g_data.screen_width, g_data.screen_height, "Snake 3000", res_man };
-  const sys::DebugRender_t dbg_ren_sys{};
   const ResourceManager_t  res_man{};
+  const sys::DebugRender_t dbg_ren_sys{};
   const sys::Snake_t       snake_sys{};
   const sys::Input_t       inp_sys{};
   const sys::Collider_t    col_sys{};
