@@ -29,7 +29,8 @@ struct Render_t
     float     top    = camera.target.y - (camera.offset.y / camera.zoom);
     Rectangle camera_view{ left, top, GetScreenWidth() * 1.0f, GetScreenHeight() * 1.0f };
     auto      entities{ g_data.qd_tree.search(camera_view) };
-    std::sort(std::execution::par_unseq, entities.begin(), entities.end(), [&](auto k1, auto k2) {
+    // std::sort(std::execution::par_unseq, entities.begin(), entities.end(), [&](auto k1, auto k2) {
+    std::sort(entities.begin(), entities.end(), [&](auto k1, auto k2) {
       auto comp{ false };
       ecs_man.Match<e::Renderable_t>(g_data.qd_tree[k1], [&](auto& ren1, auto&) {
         ecs_man.Match<e::Renderable_t>(g_data.qd_tree[k2], [&](auto& ren2, auto&) { comp = ren1.index < ren2.index; });
@@ -44,12 +45,8 @@ struct Render_t
         dest_rec.x = pos.position.x;
         dest_rec.y = pos.position.y;
         auto rot{ Vector2Angle(Vector2{}, pos.direction) * RAD2DEG + 90 };
-        DrawTexturePro(mResMan.mAtlas,
-                       ren.crop,
-                       dest_rec,
-                       { dest_rec.width * 0.5f, dest_rec.height * 0.5f },
-                       rot,
-                       ren.color);
+        DrawTexturePro(
+          mResMan.mAtlas, ren.crop, dest_rec, { dest_rec.width * 0.5f, dest_rec.height * 0.5f }, rot, ren.color);
       });
     }
     EndMode2D();

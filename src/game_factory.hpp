@@ -1,5 +1,6 @@
 #pragma once
 
+#include "raylib.h"
 #include "serialization.hpp"
 
 #include <cmath>
@@ -8,6 +9,7 @@
 #include <numbers>
 #include <random>
 #include <raymath.h>
+#include <string_view>
 
 struct GameFactory_t
 {
@@ -16,11 +18,20 @@ struct GameFactory_t
   explicit GameFactory_t(ECSMan_t& ecs_man, GameData_t& g_data)
     : mECSMan{ ecs_man }
     , mGData{ g_data }
-    , mConfig(json::parse(std::ifstream("./game_config.json")))
-    , mSpriteLayout(json::parse(std::ifstream("./texture_atlas.json")))
+    , mConfig(LoadJsonFromAssets("resources/data/game_config.json"))
+    , mSpriteLayout(LoadJsonFromAssets("resources/data/texture_atlas.json"))
   {
     mGData               = mConfig["config"].get<GameData_t>();
     mGData.camera.offset = { .x = mGData.screen_width * 0.5f, .y = mGData.screen_height * 0.5f };
+  }
+
+  static auto LoadJsonFromAssets(std::string_view file_path) -> json
+  {
+    auto* fileData{ LoadFileText(file_path.data()) };
+    json  j = json::parse(fileData);
+    UnloadFileText(fileData);
+
+    return j;
   }
 
   constexpr auto grow(auto e, unsigned inc) const -> void

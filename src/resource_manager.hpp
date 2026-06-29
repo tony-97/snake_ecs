@@ -10,5 +10,5 @@ struct ResourceManager_t : ECS::Uncopyable_t
 
   ~ResourceManager_t() { UnloadTexture(mAtlas); }
 
-  const Texture2D mAtlas{ LoadTexture("./assets/texture_atlas.png") };
+  const Texture2D mAtlas{ LoadTexture("resources/sprites/texture_atlas.png") };
 };
