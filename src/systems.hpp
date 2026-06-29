@@ -3,6 +3,7 @@
 #include "entities.hpp"
 #include "type_aliases.hpp"
 #include "types.hpp"
+#include "game_factory.hpp"
 
 #include <algorithm>
 #include <format>
@@ -163,6 +164,61 @@ struct Collider_t
         }
       }
     });
+  }
+};
+
+struct Gameplay_t
+{
+  constexpr explicit Gameplay_t() = default;
+
+  constexpr auto update(const EVMan_t& ev_man, CmdMan_t& cmd_man) const -> void
+  {
+    for (const auto& ev : ev_man.get_events<ev::Collision_t>()) {
+      auto [e1, e2]{ ev };
+      cmd_man.publish(ev::GrowSnake_t{});
+      cmd_man.publish(ev::DestroyEntity_t{ e2 });
+    }
+  }
+};
+
+struct CommandProcessor_t
+{
+  const GameFactory_t& mGFact;
+
+  explicit CommandProcessor_t(const GameFactory_t& g_fact) : mGFact{ g_fact } {}
+
+  auto update(CmdMan_t& cmd_man, ECSMan_t& ecs_man, GameData_t& g_data) const -> void
+  {
+    for (const auto& ev : cmd_man.get_events<ev::GrowSnake_t>()) {
+      grow_snake(ecs_man, g_data);
+    }
+    for (const auto& ev : cmd_man.get_events<ev::DestroyEntity_t>()) {
+      ecs_man.Match<e::Collidable_t>(ev.entity, [&](auto&, auto& col) {
+        g_data.qd_tree.erase(col.key);
+      });
+      ecs_man.Destroy(ev.entity);
+    }
+    cmd_man.clear();
+  }
+
+private:
+  auto grow_snake(ECSMan_t& ecs_man, GameData_t& g_data) const -> void
+  {
+    ++g_data.score;
+    auto [tpos, tcol, tren]{ ecs_man.GetComponents<c::Physics_t, c::Collider_t, c::Render_t>(g_data.tail) };
+    auto ss  = ecs_man.TransformTo<e::SnakeSegment_t>(g_data.tail);
+    auto ren = tren;
+    --ren.index;
+    g_data.tail = mGFact.EntityFromConfig<e::SnakeTail_t>(
+      c::SnakeSegment_t{ ecs_man.GetBaseID<e::Collidable_t>(ss) }, c::Physics_t{ tpos.position }, tcol, ren);
+    ecs_man.Match<e::Collidable_t>(g_data.tail, [&](auto& phy, auto& col, auto e) {
+      col.size = tcol.size;
+      auto      pos{ phy.position };
+      Rectangle r{ pos.x - col.size, pos.y - col.size, col.size * 1.0f, col.size * 1.0f };
+      col.key = g_data.qd_tree.insert(e, r);
+    });
+    mGFact.grow(g_data.head, 1);
+    ecs_man.ParallelForEach<e::SnakeSegment_t>([&](auto e) { mGFact.grow(e, 1); });
   }
 };
 

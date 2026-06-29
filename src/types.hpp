@@ -50,3 +50,10 @@ struct EVConfig_t
 };
 
 using EVMan_t = EventManager_t<EVConfig_t>;
+
+struct CmdConfig_t
+{
+  using events = TMPL::TypeList_t<ev::DestroyEntity_t, ev::GrowSnake_t>;
+};
+
+using CmdMan_t = EventManager_t<CmdConfig_t>;

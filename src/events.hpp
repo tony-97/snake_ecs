@@ -16,4 +16,13 @@ struct Collision_t
   ECS::Handle_t<e::Collidable_t> e2;
 };
 
+struct DestroyEntity_t
+{
+  ECS::Handle_t<e::Collidable_t> entity;
+};
+
+struct GrowSnake_t
+{
+};
+
 }
