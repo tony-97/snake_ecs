@@ -7,3 +7,6 @@
 [submodule "external/oop-ecs"]
 	path = external/oop-ecs
 	url = ../oop-ecs
+[submodule "external/nlohmannjson"]
+	path = external/nlohmannjson
+	url = https://github.com/nlohmann/json.git
