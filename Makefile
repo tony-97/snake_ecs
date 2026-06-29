@@ -35,7 +35,7 @@ EXTRA_SRCS_CXX ?=
 EXTRA_SRCS_C   ?=
 EXCLUDE_SRCS   ?=
 
-INCLUDE_DIRS += ./external/oop-ecs/oop-ecs ./external/oop-ecs/external
+INCLUDE_DIRS += ./external/oop-ecs/oop-ecs ./external/oop-ecs/external ./external/nlohmannjson/single_include
 LIBS_PATH    +=
 DEFINES      +=
 
